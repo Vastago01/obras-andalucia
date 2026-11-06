@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Obras públicas en Andalucía</title>
+<style>
+:root{--bg:#f7f6f2;--card:#fff;--tx:#1d1d1b;--mu:#6b6a64;--bd:#dedcd3;--sea:#e6eef3;--land:#efe9d9;--c1:#2f6fb5;--c2:#2e8b57;--c3:#d08a1c;--ac:#1d1d1b;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);color-scheme:light}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#1a1a18;--card:#252522;--tx:#efeee8;--mu:#a09f96;--bd:#3a3a36;--sea:#202a31;--land:#2d2b25;--c1:#5b9be0;--c2:#4cb87b;--c3:#e6a43a;--ac:#efeee8;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#1a1a18;--card:#252522;--tx:#efeee8;--mu:#a09f96;--bd:#3a3a36;--sea:#202a31;--land:#2d2b25;--c1:#5b9be0;--c2:#4cb87b;--c3:#e6a43a;--ac:#efeee8;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--tx);font:15px/1.45 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+.w{max-width:1150px;margin:0 auto;padding:18px 16px 40px}
+h1{font-size:22px;margin:0 0 4px}h2{font-size:14px;margin:0 0 8px}
+.sub,.m{color:var(--mu);font-size:13px}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:12px;margin-bottom:12px}
+.drop{border:2px dashed var(--bd);border-radius:10px;padding:16px;text-align:center;cursor:pointer}
+.drop.ov{border-color:var(--c1)}
+.drop b{display:block;font-size:15px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+button,select,input[type=search]{background:var(--card);color:var(--tx);border:1px solid var(--bd);border-radius:8px;padding:8px 10px;font:inherit}
+button{cursor:pointer}
+input[type=search]{flex:1 1 200px;min-width:0}
+a{color:var(--c1)}
+.k{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin-bottom:12px}
+.k div{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 14px}
+.k b{display:block;font-size:20px}.k span{font-size:12px;color:var(--mu)}
+.g{display:grid;grid-template-columns:1.25fr 1fr;gap:14px;align-items:start}
+@media(max-width:820px){.g{grid-template-columns:1fr}}
+svg{width:100%;height:auto;display:block}
+.sea{fill:var(--sea)}.land{fill:var(--land);stroke:var(--bd);stroke-width:1.5}
+.pt{cursor:pointer;stroke:var(--card);stroke-width:1.5;opacity:.85}
+.pt.on{stroke:var(--ac);stroke-width:3;opacity:1}.pt.ap{stroke-dasharray:3 2;stroke:var(--mu)}
+.lg{display:flex;gap:14px;flex-wrap:wrap;font-size:12px;color:var(--mu);padding-top:6px}
+.lg i{display:inline-block;width:10px;height:10px;border-radius:50%;margin-right:5px}
+.bar{display:grid;grid-template-columns:70px 1fr 80px;gap:8px;align-items:center;font-size:12.5px;margin:3px 0}
+.bar div{height:12px;border-radius:6px;background:var(--c1)}.bar span:last-child{text-align:right;color:var(--mu)}
+.lst{display:flex;flex-direction:column;gap:8px;max-height:760px;overflow-y:auto}
+.it{background:var(--card);border:1px solid var(--bd);border-radius:10px;padding:10px 12px;cursor:pointer}
+.it.on{border-color:var(--ac)}.it h3{font-size:14px;margin:0 0 4px}
+.tg{display:inline-block;font-size:11px;border-radius:99px;padding:1px 8px;color:#fff;margin-right:6px}
+.imp{font-weight:600;color:var(--tx)}
+.lg span{cursor:pointer}.dl{font-size:12.5px;word-break:break-all}details{margin-top:6px}summary{cursor:pointer}.tg.s{opacity:.9}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>Obras públicas en Andalucía</h1>
+<p class="sub">Dashboard de licitaciones de obra (CPV 45). Se actualiza cada día desde PLACSP. Puedes cargar otro ZIP para verlo sin guardarlo.</p>
+
+<div class="card">
+<div class="drop" id="drop"><b>Arrastra aquí el ZIP o los ficheros .atom de PLACSP</b><span class="m">o haz clic para elegirlos (puedes seleccionar varios)</span></div>
+<input type="file" id="fi" multiple accept=".zip,.atom,.xml" hidden>
+<p class="m" id="how" style="margin:10px 0 6px"></p>
+<div class="row"><span class="m" id="stt"></span><button id="demo">Ver datos de ejemplo</button><button id="clr">Volver a los datos actualizados</button></div>
+</div>
+
+<div class="k"><div><b id="n">0</b><span>licitaciones</span></div><div><b id="tot">0</b><span>importe total (sin IVA)</span></div><div><b id="pz">0</b><span>en plazo de presentación</span></div><div><b id="cl">0</b><span>cierran en 15 días</span></div></div>
+
+<div class="row" style="margin-bottom:12px">
+<input type="search" id="q" placeholder="Buscar por título, municipio u órgano">
+<select id="prov"><option value="">Todas las provincias</option></select>
+<select id="src"><option value="">Todas las fuentes</option><option>PLACSP</option><option>Junta de Andalucía</option><option>Ayuntamiento</option></select>
+<select id="est"><option value="">Todos los estados</option><option>En plazo</option><option>En evaluación</option><option>Adjudicada</option><option>Resuelta</option><option>Anuncio previo</option><option>Anulada</option></select>
+<select id="imp"><option value="0">Cualquier importe</option><option value="1000000">Más de 1 M€</option><option value="5000000">Más de 5 M€</option></select>
+<button id="csv">Exportar CSV</button>
+</div>
+
+<div class="g">
+<div>
+<div class="card"><svg viewBox="0 0 700 416" role="img" aria-label="Mapa esquemático de Andalucía"><rect class="sea" width="700" height="416" rx="8"/><path id="out" class="land"/><g id="pts"></g></svg>
+<div class="row" style="margin-top:8px"><span class="m">Colorear por:</span><select id="col"><option value="est">Estado</option><option value="src">Fuente</option></select><span class="m">(pulsa un color para filtrar)</span></div><div class="lg" id="lgd"></div><div class="m" style="padding-top:4px">Tamaño = importe · borde discontinuo = ubicación aproximada a provincia</div></div>
+<div class="card"><h2>Importe por provincia</h2><div id="bars"></div></div>
+</div>
+<div><div class="m" id="cnt" style="margin-bottom:6px"></div><div class="lst" id="lst"></div></div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<script>
+var EMB={D:[],px:[]};
+var $=function(i){return document.getElementById(i)};
+function nm(s){return (s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"").toLowerCase().replace(/[^a-z0-9]+/g," ").trim()}
+var NU={ES611:"Almería",ES612:"Cádiz",ES613:"Córdoba",ES614:"Granada",ES615:"Huelva",ES616:"Jaén",ES617:"Málaga",ES618:"Sevilla"};
+var PN={},PC={Almería:[37.0,-2.3],Cádiz:[36.5,-5.9],Córdoba:[37.9,-4.8],Granada:[37.3,-3.4],Huelva:[37.5,-6.7],Jaén:[37.8,-3.5],Málaga:[36.8,-4.6],Sevilla:[37.4,-5.6]};
+for(var k in NU){PN[nm(NU[k])]=NU[k];var o=document.createElement("option");o.textContent=NU[k];$("prov").appendChild(o)}
+var TOWNS="Málaga:36.721,-4.421;Marbella:36.510,-4.886;Estepona:36.427,-5.146;Fuengirola:36.540,-4.625;Torremolinos:36.620,-4.500;Benalmádena:36.595,-4.516;Mijas:36.596,-4.637;Vélez-Málaga:36.775,-4.100;Ronda:36.742,-5.167;Antequera:37.018,-4.560;Nerja:36.746,-3.875;Coín:36.659,-4.756;Alhaurín de la Torre:36.665,-4.562;Alhaurín el Grande:36.642,-4.686;Manilva:36.376,-5.250;Casares:36.445,-5.275;Benahavís:36.523,-5.045;Rincón de la Victoria:36.717,-4.276;Torrox:36.757,-3.951;Cártama:36.711,-4.632;Álora:36.829,-4.700;Ojén:36.563,-4.855;Cádiz:36.527,-6.289;Jerez de la Frontera:36.686,-6.137;Algeciras:36.133,-5.455;La Línea de la Concepción:36.168,-5.348;San Roque:36.210,-5.384;Chiclana de la Frontera:36.419,-6.147;El Puerto de Santa María:36.594,-6.233;San Fernando:36.464,-6.198;Sanlúcar de Barrameda:36.778,-6.352;Barbate:36.193,-5.926;Tarifa:36.014,-5.603;Los Barrios:36.185,-5.490;Conil de la Frontera:36.277,-6.087;Rota:36.622,-6.362;Arcos de la Frontera:36.751,-5.810;Vejer de la Frontera:36.254,-5.966;Puerto Real:36.528,-6.192;Almería:36.834,-2.463;Roquetas de Mar:36.764,-2.614;El Ejido:36.776,-2.815;Níjar:36.965,-2.215;Vera:37.245,-1.862;Adra:36.748,-3.022;Córdoba:37.888,-4.779;Lucena:37.409,-4.485;Puente Genil:37.389,-4.769;Montilla:37.587,-4.639;Priego de Córdoba:37.438,-4.196;Granada:37.177,-3.599;Motril:36.745,-3.518;Almuñécar:36.734,-3.690;Baza:37.490,-2.771;Guadix:37.299,-3.140;Loja:37.168,-4.150;Huelva:37.261,-6.945;Lepe:37.254,-7.205;Isla Cristina:37.199,-7.317;Ayamonte:37.212,-7.403;Almonte:37.264,-6.516;Moguer:37.275,-6.838;Jaén:37.779,-3.785;Linares:38.095,-3.636;Andújar:38.039,-4.051;Úbeda:38.013,-3.371;Martos:37.721,-3.969;Sevilla:37.389,-5.984;Dos Hermanas:37.283,-5.921;Alcalá de Guadaíra:37.337,-5.841;Utrera:37.185,-5.781;Écija:37.542,-5.083;Mairena del Aljarafe:37.349,-6.062;Carmona:37.471,-5.643;Morón de la Frontera:37.122,-5.456;Lebrija:36.921,-6.075;Osuna:37.236,-5.103;Atarfe:37.222,-3.686;Tomares:37.372,-6.048;Mairena del Alcor:37.373,-5.746;Espartinas:37.386,-6.117;Bornos:36.810,-5.743;Vegas del Genil:37.150,-3.683;Las Gabias:37.136,-3.650;Mairena del Aljarafe:37.349,-6.062;Mairena de Aljarafe:37.349,-6.062;Lora del Río:37.659,-5.527;Cabra:37.472,-4.441;Albolote:37.233,-3.653;Bonares:37.331,-6.690;Punta Umbría:37.185,-6.968;Hornachuelos:37.846,-5.231;Vícar:36.833,-2.640;Armilla:37.141,-3.620;San José del Valle:36.600,-5.944;Villanueva de Algaidas:37.178,-4.456;Chauchina:37.176,-3.738;Medina Sidonia:36.459,-5.926;Torreblascopedro:37.992,-3.765;La Algaba:37.464,-6.019;Marchena:37.330,-5.416;Alcalá la Real:37.461,-3.924;Alcalá del Río:37.517,-5.976;Sanlúcar la Mayor:37.387,-6.200;Salobreña:36.745,-3.587;Cuevas del Becerro:36.850,-4.998;Cenes de la Vega:37.139,-3.549;Salteras:37.427,-6.103;Espera:36.855,-5.808;Alcalá del Valle:36.906,-5.152;Trebujena:36.870,-6.180;Chipiona:36.737,-6.440;Baena:37.617,-4.325;Villanueva del Rosario:36.998,-4.351;Grazalema:36.759,-5.368;Marinaleda:37.381,-4.953;Cuevas del Almanzora:37.297,-1.879;Ogíjares:37.130,-3.600;Huércal-Overa:37.390,-1.943;Pulianas:37.236,-3.569;La Roda de Andalucía:37.205,-4.769;San Nicolás del Puerto:37.998,-5.673;Algarrobo:36.765,-4.039;Pozoblanco:38.379,-4.849;Pilas:37.305,-6.306;Villa del Río:37.980,-4.300;Montoro:38.022,-4.384;Guillena:37.543,-6.050;Bailén:38.096,-3.775;Churriana de la Vega:37.139,-3.640;Aracena:37.893,-6.564;La Carlota:37.678,-4.939;El Carpio:37.924,-4.499";
+var TW={};TOWNS.split(";").forEach(function(s){var a=s.split(":"),b=a[1].split(",");TW[nm(a[0])]=[+b[0],+b[1]]});
+var TK=Object.keys(TW).sort(function(a,b){return b.length-a.length});
+var OUT=[[-7.45,37.2],[-7.0,37.2],[-6.4,36.95],[-6.35,36.75],[-6.3,36.5],[-6.2,36.2],[-5.6,36.0],[-5.35,36.12],[-5.1,36.4],[-4.4,36.7],[-3.8,36.72],[-3.52,36.72],[-2.8,36.75],[-2.4,36.8],[-2.0,36.85],[-1.65,37.2],[-1.9,37.5],[-2.1,37.9],[-2.4,38.0],[-2.2,38.4],[-2.6,38.6],[-3.0,38.7],[-3.5,38.55],[-4.0,38.7],[-4.4,38.6],[-5.0,38.6],[-5.3,38.4],[-5.7,38.2],[-6.3,38.15],[-6.8,38.0],[-7.2,37.9],[-7.4,37.5]];
+function X(lo){return (lo+7.6)/6.1*700}function Y(la){return (38.8-la)/2.9*416}
+$("out").setAttribute("d","M"+OUT.map(function(p){return X(p[0]).toFixed(1)+","+Y(p[1]).toFixed(1)}).join("L")+"Z");
+var COL={"PLACSP":"var(--c1)","Junta de Andalucía":"var(--c2)","Ayuntamiento":"var(--c3)"};
+var ESTC={"En plazo":"#2a9356","En evaluación":"#c98a10","Adjudicada":"#2f6fb5","Resuelta":"#7a6fb0","Anuncio previo":"#238f8f","Anulada":"#c0392b","Desconocido":"#7d7d77"};
+var TN={L:"Pliego administrativo",T:"Pliego técnico",A:"Anexo",G:"Otro documento"};
+var ES={PRE:"Anuncio previo",PUB:"En plazo",EV:"En evaluación",ADJ:"Adjudicada",RES:"Resuelta",ANUL:"Anulada"};
+var D=[],sel=null,mode="demo",info="",dl=null;
+
+function eur(n){return n.toLocaleString("es-ES")+" €"}
+function fd(s){var a=(s||"").slice(0,10).split("-");return a.length===3?a[2]+"/"+a[1]+"/"+a[0]:"sin fecha"}
+function loc(r,city){
+ var c=TW[nm(city)];
+ if(!c){var h=" "+nm(r.org+" "+r.t+" "+city)+" ";for(var i=0;i<TK.length;i++){if(h.indexOf(" "+TK[i]+" ")>=0){c=TW[TK[i]];break}}}
+ if(c){r.la=c[0];r.lo=c[1];r.ap=0}else{var q=PC[r.prov];r.la=q[0]+(Math.random()-.5)*.3;r.lo=q[1]+(Math.random()-.5)*.4;r.ap=1}
+}
+function srcOf(o){o=nm(o);return o.indexOf("ayuntamiento")>=0?"Ayuntamiento":(o.indexOf("junta de andalucia")>=0||o.indexOf("consejeria")>=0||o.indexOf("servicio andaluz")>=0||(o.indexOf("agencia")>=0&&o.indexOf("andaluc")>=0))?"Junta de Andalucía":"PLACSP"}
+
+/* ---- lectura de ficheros PLACSP (ATOM/CODICE) ---- */
+function g(e,n){return e.getElementsByTagNameNS("*",n)}
+function tx(e,n){var x=e&&g(e,n)[0];return x?(x.textContent||"").trim():""}
+function parse(xml,acc){
+ var doc=new DOMParser().parseFromString(xml,"application/xml"),es=g(doc,"entry");
+ for(var i=0;i<es.length;i++){
+  var e=es[i],c=g(e,"ContractFolderStatus")[0];if(!c)continue;
+  var pp=g(c,"ProcurementProject")[0];if(!pp)continue;
+  var cp=[].map.call(g(pp,"ItemClassificationCode"),function(x){return x.textContent.trim()});
+  if(!(tx(pp,"TypeCode")==="3"||cp.some(function(x){return x.indexOf("45")===0})))continue;
+  var nu=tx(pp,"CountrySubentityCode"),pr=nu.indexOf("ES61")===0?NU[nu.slice(0,5)]:PN[nm(tx(pp,"CountrySubentity"))];
+  if(!pr)continue;
+  var id=tx(c,"ContractFolderID");if(!id)continue;
+  var pt=g(c,"LocatedContractingParty")[0],ba=g(pp,"BudgetAmount")[0],lk=g(e,"link"),up=tx(e,"updated");
+  var kk=(tx(e,"id").split("/").pop())||id;if(acc[kk]&&acc[kk].up>up)continue;
+  acc[kk]={k:kk,id:id,t:tx(pp,"Name"),mun:tx(pt,"CityName")||pr,prov:pr,org:tx(pt,"Name"),src:srcOf(tx(pt,"Name")),
+   est:ES[tx(c,"ContractFolderStatusCode")]||"Desconocido",imp:Math.round(parseFloat(tx(ba,"TaxExclusiveAmount")||tx(ba,"EstimatedOverallContractAmount"))||0),
+   pl:tx(g(c,"TenderSubmissionDeadlinePeriod")[0],"EndDate"),u:lk.length?lk[0].getAttribute("href"):"",up:up,dc:dcs(c)};
+ }
+}
+function dcs(c){var o=[],T={LegalDocumentReference:"L",TechnicalDocumentReference:"T",AdditionalDocumentReference:"A",GeneralDocument:"G"};
+ for(var k=c.firstElementChild;k;k=k.nextElementSibling){var t=T[k.localName];if(!t)continue;var u=tx(k,"URI");if(u)o.push([t,tx(k,"ID"),-1,u])}return o}
+function docs(box,d){
+ if(!d.dc||!d.dc.length)return;
+ var det=document.createElement("details"),s=document.createElement("summary");
+ det.onclick=function(ev){ev.stopPropagation()};s.className="m";s.textContent="Documentos ("+d.dc.length+")";det.appendChild(s);
+ d.dc.forEach(function(x,i){var r=document.createElement("div"),t=document.createElement("span"),a=document.createElement("a");
+  t.className="m";t.textContent=TN[x[0]]+": ";a.className="dl";a.target="_blank";a.rel="noopener";
+  a.href=(x[2]>=0&&EMB.px?EMB.px[x[2]]:"")+x[3];a.textContent=x[0]==="G"?"Documento "+(i+1):(x[1]||"Descargar");
+  r.appendChild(t);r.appendChild(a);det.appendChild(r)});
+ box.appendChild(det)}
+function tick(){return new Promise(function(r){setTimeout(r,0)})}
+async function load(files){
+ var acc={},nf=0;
+ try{
+  for(var i=0;i<files.length;i++){
+   var f=files[i];
+   if(/\.zip$/i.test(f.name)){
+    if(!window.JSZip){$("stt").textContent="No se pudo cargar el lector de ZIP. Descomprime el ZIP y arrastra los .atom.";return}
+    var z=await JSZip.loadAsync(f),ns=Object.keys(z.files).filter(function(n){return /\.(atom|xml)$/i.test(n)});
+    for(var j=0;j<ns.length;j++){parse(await z.files[ns[j]].async("string"),acc);nf++;if(j%5===0){$("stt").textContent="Procesando "+f.name+": "+(j+1)+" de "+ns.length+" ficheros…";await tick()}}
+   }else{parse(await f.text(),acc);nf++;$("stt").textContent="Procesando "+nf+" ficheros…";await tick()}
+  }
+ }catch(err){$("stt").textContent="Error al leer los ficheros: "+err.message;return}
+ D=Object.keys(acc).map(function(k){var r=acc[k];loc(r,r.mun);return r});
+ mode="real";info=D.length+" licitaciones de obra en Andalucía (de "+nf+" ficheros)";
+ try{localStorage.setItem("obras_v1",JSON.stringify({D:D,info:info}))}catch(e){}
+ render();
+}
+function demo(){
+ var R=[["MA-26/041","Urbanización y viario sector SUP-2","Estepona","Málaga","Ayuntamiento","En plazo",3850000,"2026-11-27"],["MA-26/063","Puente sobre arroyo, camino rural","Coín","Málaga","PLACSP","En evaluación",1740000,"2026-10-20"],["CA-26/017","Reparación de defensas de muelle","Algeciras","Cádiz","PLACSP","En plazo",960000,"2026-11-18"],["CA-26/033","Dragado y acondicionamiento de dársena","Cádiz","Cádiz","PLACSP","En plazo",7800000,"2026-12-15"],["SE-26/088","Renovación de redes de saneamiento","Sevilla","Sevilla","Junta de Andalucía","En plazo",6400000,"2026-11-30"],["GR-26/045","Rehabilitación de edificio administrativo","Granada","Granada","Junta de Andalucía","En plazo",2650000,"2026-11-24"],["AL-26/019","Encauzamiento de rambla","Almería","Almería","PLACSP","En plazo",9200000,"2026-12-12"],["HU-26/027","Mejora de accesos al puerto","Huelva","Huelva","PLACSP","Adjudicada",5600000,"2026-09-18"]];
+ D=R.map(function(a){var r={id:a[0],t:a[1],mun:a[2],prov:a[3],org:"",src:a[4],est:a[5],imp:a[6],pl:a[7],u:""};loc(r,a[2]);return r});
+ mode="demo";info="Datos de ejemplo ficticios";sel=null;render();
+}
+
+/* ---- dashboard ---- */
+function filt(){
+ var q=nm($("q").value),p=$("prov").value,s=$("src").value,e=$("est").value,m=+$("imp").value;
+ return D.filter(function(d){return(!p||d.prov===p)&&(!s||d.src===s)&&(!e||d.est===e)&&d.imp>=m&&(!q||nm(d.t+" "+d.mun+" "+d.org+" "+d.id).indexOf(q)>=0)}).sort(function(a,b){return b.imp-a.imp})
+}
+function render(){
+ var L=filt(),S="http://www.w3.org/2000/svg",hoy=new Date().toISOString().slice(0,10),lim=new Date(Date.now()+15*864e5).toISOString().slice(0,10);
+ $("stt").textContent=(mode==="demo"?"Mostrando: ":"Datos cargados: ")+info;
+ $("n").textContent=L.length.toLocaleString("es-ES");
+ $("tot").textContent=eur(L.reduce(function(a,d){return a+d.imp},0));
+ var ab=L.filter(function(d){return d.est==="En plazo"});
+ $("pz").textContent=ab.length;
+ $("cl").textContent=ab.filter(function(d){var f=(d.pl||"").slice(0,10);return f>=hoy&&f<=lim}).length;
+ var g0=$("pts");g0.innerHTML="";
+ L.slice(0,3000).forEach(function(d){
+  var c=document.createElementNS(S,"circle");c.setAttribute("cx",X(d.lo));c.setAttribute("cy",Y(d.la));
+  c.setAttribute("r",(4+Math.sqrt(d.imp/1e6)*3).toFixed(1));c.setAttribute("fill",$("col").value==="est"?(ESTC[d.est]||"#7d7d77"):COL[d.src]);
+  c.setAttribute("class","pt"+(sel===d.k?" on":"")+(d.ap?" ap":""));
+  var t=document.createElementNS(S,"title");t.textContent=d.mun+": "+d.t+" ("+eur(d.imp)+")";c.appendChild(t);
+  c.onclick=function(){sel=d.k;render();var el=document.querySelector('[data-id="'+d.k+'"]');if(el)el.scrollIntoView({block:"nearest"})};
+  g0.appendChild(c)});
+ var cm=$("col").value,lg=$("lgd");lg.innerHTML="";
+ (cm==="est"?["En plazo","En evaluación","Adjudicada","Resuelta","Anuncio previo","Anulada"]:["PLACSP","Junta de Andalucía","Ayuntamiento"]).forEach(function(k){
+  var n=L.filter(function(d){return(cm==="est"?d.est:d.src)===k}).length;if(!n&&k==="Anulada")return;
+  var s=document.createElement("span");s.innerHTML="<i></i>"+k+" ("+n+")";s.firstChild.style.background=cm==="est"?ESTC[k]:COL[k];
+  s.onclick=function(){var el=$(cm==="est"?"est":"src");el.value=(el.value===k?"":k);render()};lg.appendChild(s)});
+ var by={};L.forEach(function(d){by[d.prov]=(by[d.prov]||0)+d.imp});
+ var mx=Math.max.apply(null,Object.keys(by).map(function(k){return by[k]}).concat([1]));
+ $("bars").innerHTML="";
+ Object.keys(NU).map(function(k){return NU[k]}).sort(function(a,b){return(by[b]||0)-(by[a]||0)}).forEach(function(p){
+  var r=document.createElement("div");r.className="bar";r.innerHTML="<span></span><div></div><span></span>";
+  r.children[0].textContent=p;r.children[1].style.width=((by[p]||0)/mx*100)+"%";
+  r.children[2].textContent=((by[p]||0)/1e6).toLocaleString("es-ES",{maximumFractionDigits:1})+" M€";$("bars").appendChild(r)});
+ var l=$("lst");l.innerHTML="";
+ $("cnt").textContent=L.length>100?"Mostrando las 100 de mayor importe de "+L.length.toLocaleString("es-ES"):"";
+ L.slice(0,100).forEach(function(d){
+  var e=document.createElement("div");e.className="it"+(sel===d.k?" on":"");e.setAttribute("data-id",d.k);
+  e.innerHTML='<h3></h3><div class="m"><span class="tg e"></span><span class="tg s"></span><span class="a"></span></div><div class="m"><span class="imp"></span> · <span class="p"></span> <a target="_blank" rel="noopener" class="u">Ver licitación ↗</a></div><div class="dc"></div>';
+  e.querySelector("h3").textContent=d.t;var te=e.querySelector(".tg.e");te.textContent=d.est;te.style.background=ESTC[d.est]||"#7d7d77";var ts=e.querySelector(".tg.s");ts.textContent=d.src;ts.style.background="var(--mu)";docs(e.querySelector(".dc"),d);
+  e.querySelector(".a").textContent=(d.mun===d.prov?"Provincia de "+d.prov:d.mun+" ("+d.prov+")")+(d.org?" · "+d.org:"");
+  e.querySelector(".imp").textContent=eur(d.imp);
+  e.querySelector(".p").textContent="plazo "+fd(d.pl);
+  var u=e.querySelector(".u");if(d.u){u.href=d.u;u.onclick=function(ev){ev.stopPropagation()}}else u.remove();
+  e.onclick=function(){sel=(sel===d.k?null:d.k);render()};l.appendChild(e)});
+}
+["q","prov","src","est","imp","col"].forEach(function(i){$(i).addEventListener("input",render)});
+
+/* ---- entrada de ficheros, ayuda y exportación ---- */
+var dz=$("drop"),fi=$("fi");
+dz.onclick=function(){fi.click()};fi.onchange=function(){if(fi.files.length)load(fi.files)};
+dz.ondragover=function(e){e.preventDefault();dz.classList.add("ov")};dz.ondragleave=function(){dz.classList.remove("ov")};
+dz.ondrop=function(e){e.preventDefault();dz.classList.remove("ov");if(e.dataTransfer.files.length)load(e.dataTransfer.files)};
+$("demo").onclick=demo;
+$("clr").onclick=function(){D=EMB.D;mode="real";info=EMB.info;sel=null;render()};
+var hoyD=new Date(),pad=function(n){return n<10?"0"+n:""+n},ym=function(d){return d.getFullYear()+pad(d.getMonth()+1)},prev=new Date(hoyD.getFullYear(),hoyD.getMonth()-1,1);
+var base="https://contrataciondelsectorpublico.gob.es/sindicacion/sindicacion_643/licitacionesPerfilesContratanteCompleto3_";
+$("how").innerHTML='Descarga el ZIP del mes: <a target="_blank" rel="noopener" href="'+base+ym(prev)+'.zip">mes anterior</a> · <a target="_blank" rel="noopener" href="'+base+ym(hoyD)+'.zip">mes en curso</a> · <a target="_blank" rel="noopener" href="https://www.hacienda.gob.es/es-ES/GobiernoAbierto/Datos%20Abiertos/paginas/licitacionescontratante.aspx">página oficial</a> · <a target="_blank" rel="noopener" href="https://www.hacienda.gob.es/en-GB/GobiernoAbierto/Datos%20Abiertos/Paginas/LicitacionesAgregacion.aspx">ayuntamientos por agregación</a>. Después arrástralo aquí. Solo se ven en tu navegador.';
+$("csv").onclick=async function(){
+ var h=["Expediente","Título","Municipio","Provincia","Órgano","Fuente","Estado","Importe sin IVA","Plazo","Enlace"],q=function(v){return'"'+String(v==null?"":v).replace(/"/g,'""')+'"'};
+ var rows=[h.map(q).join(";")].concat(filt().map(function(d){return[d.id,d.t,d.mun,d.prov,d.org,d.src,d.est,d.imp,fd(d.pl),d.u].map(q).join(";")}));
+ try{var tx2="\ufeff"+rows.join("\r\n");if(dl){await dl.save({filename:"obras-andalucia.csv",data:tx2})}else{var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([tx2],{type:"text/csv;charset=utf-8"}));a.download="obras-andalucia.csv";a.click()}}catch(e){}
+};
+if(window.claude&&claude.use){claude.use("downloads").then(function(d){if(d){dl=d;$("csv").hidden=false}}).catch(function(){})}
+fetch("data/obras.json?v="+Date.now()).then(function(r){if(!r.ok)throw new Error(r.status);return r.json()}).then(function(j){EMB=j;EMB.info=j.info+" · actualizado el "+j.updated;D=j.D;mode="real";info=EMB.info;render()}).catch(function(){$("stt").textContent="No se pudieron cargar los datos. Abre la página desde su enlace web de GitHub Pages.";render()});
+</script>
+</body>
+</html>
